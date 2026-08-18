@@ -1,26 +1,396 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --void: #0B0D11;
+    --surface: #0E1015;
+    --surface-low: #14171D;
+    --surface-mid: #1A1D24;
+    --surface-high: #242730;
+    --surface-top: #2E323D;
+    --on-surface: #E2E2E8;
+    --on-surface-dim: #D8C3B4;
+    --outline: #262B35;
+    --outline-mid: #4A3E34;
+    --copper: #B87333;
+    --copper-glow: rgba(184, 115, 51, 0.15);
+    --champagne: #D3C5AD;
+    --amber: #FBBC00;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+    overflow-x: clip;
+  }
+
+  body {
+    background-color: var(--void);
+    color: var(--on-surface);
+    font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: 'EB Garamond', Georgia, serif;
+  }
+
+  ::selection {
+    background-color: var(--copper);
+    color: #0F1115;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ============================================================ */
+/* HERO & ABOUT VIGNETTE CONTAINERS                             */
+/* ============================================================ */
+
+.hero-vignette-container {
+  border: none !important;
+}
+
+.hero-radial-vignette {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(14, 16, 21, 0.94) 0%,
+    rgba(14, 16, 21, 0.86) 40%,
+    rgba(14, 16, 21, 0.45) 70%,
+    rgba(14, 16, 21, 0) 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  -webkit-mask-image: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 1) 45%,
+    rgba(0, 0, 0, 0.5) 75%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 1) 45%,
+    rgba(0, 0, 0, 0.5) 75%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+/* ============================================================ */
+/* SCROLL ANIMATION KEYFRAMES & UTILITIES                       */
+/* ============================================================ */
+
+.circuit-bus-trace {
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  transition: opacity 0.25s ease-out;
+}
+
+/* Desktop Gear Animations (Exact Interlocking Kinematics) */
+@keyframes anim-gear-main-desktop {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(720deg); }
+}
+
+@keyframes anim-gear-left-desktop {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-960deg); }
+}
+
+@keyframes anim-gear-lower-desktop {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(720deg); }
+}
+
+/* Mobile Gear Animations (Exact Interlocking Kinematics with reversed lower gear) */
+@keyframes anim-gear-main-mobile {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(720deg); }
+}
+
+@keyframes anim-gear-left-mobile {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-1008deg); }
+}
+
+@keyframes anim-gear-lower-mobile {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-1008deg); }
+}
+
+/* Molecule Hexagon Orbit */
+@keyframes anim-mol-rotate-cw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes anim-mol-rotate-ccw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-480deg); }
+}
+
+/* Rapid Multi-Stroke Desktop Knife Slicing */
+@keyframes anim-knife-slice-desktop {
+  0%, 12.5%, 25%, 37.5%, 50%, 62.5%, 75%, 87.5%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  6.25%, 18.75%, 31.25%, 43.75%, 56.25%, 68.75%, 81.25%, 93.75% {
+    transform: translate(-36px, 25px) rotate(-1.8deg);
+  }
+}
+
+/* Rapid Multi-Stroke Mobile Knife Slicing */
+@keyframes anim-knife-slice-mobile {
+  0%, 12.5%, 25%, 37.5%, 50%, 62.5%, 75%, 87.5%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  6.25%, 18.75%, 31.25%, 43.75%, 56.25%, 68.75%, 81.25%, 93.75% {
+    transform: translate(-58px, 45px) rotate(-3.5deg);
+  }
+}
+
+/* Food items subtle drift with slice */
+@keyframes anim-food-drift {
+  0%, 12.5%, 25%, 37.5%, 50%, 62.5%, 75%, 87.5%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  6.25%, 18.75%, 31.25%, 43.75%, 56.25%, 68.75%, 81.25%, 93.75% {
+    transform: translate(12px, -8px) rotate(5deg);
+  }
+}
+
+@keyframes anim-circuit-draw {
+  0% {
+    stroke-dashoffset: 900;
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.95;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.9;
+  }
+}
+
+@keyframes anim-glow-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* ============================================================ */
+/* NATIVE CSS SCROLL-DRIVEN ANIMATIONS (Chrome, Edge, Safari 26)*/
+/* ============================================================ */
+@supports ((animation-timeline: scroll()) and (animation-range: 0% 100%)) {
+  @media (prefers-reduced-motion: no-preference) {
+    .gear-main-desktop {
+      animation: anim-gear-main-desktop auto linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0% 100%;
+    }
+
+    .gear-left-desktop {
+      animation: anim-gear-left-desktop auto linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0% 100%;
+    }
+
+    .gear-lower-desktop {
+      animation: anim-gear-lower-desktop auto linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0% 100%;
+    }
+
+    .gear-main-mobile {
+      animation: anim-gear-main-mobile auto linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0% 100%;
+    }
+
+    .gear-left-mobile {
+      animation: anim-gear-left-mobile auto linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0% 100%;
+    }
+
+    .gear-lower-mobile {
+      animation: anim-gear-lower-mobile auto linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0% 100%;
+    }
+
+    .mol-hex-1 {
+      animation: anim-mol-rotate-cw auto linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0% 100%;
+    }
+
+    .mol-hex-2 {
+      animation: anim-mol-rotate-ccw auto linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0% 100%;
+    }
+
+    .knife-group-desktop {
+      animation: anim-knife-slice-desktop auto ease-in-out both;
+      animation-timeline: scroll(root);
+      animation-range: 0% 100%;
+    }
+
+    .knife-group-mobile {
+      animation: anim-knife-slice-mobile auto ease-in-out both;
+      animation-timeline: scroll(root);
+      animation-range: 0% 100%;
+    }
+
+    .food-interactive {
+      animation: anim-food-drift auto ease-in-out both;
+      animation-timeline: scroll(root);
+      animation-range: 0% 100%;
+    }
+
+    .circuit-bus-trace {
+      animation: anim-circuit-draw auto linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0% 100%;
+    }
+
+    .glowing-via {
+      animation: anim-glow-pulse auto ease-in-out both;
+      animation-timeline: scroll(root);
+      animation-range: 0% 100%;
+    }
+  }
+}
+
+/* Accessibility: Reduce Motion */
+@media (prefers-reduced-motion: reduce) {
+  .gear-main-desktop,
+  .gear-left-desktop,
+  .gear-lower-desktop,
+  .gear-main-mobile,
+  .gear-left-mobile,
+  .gear-lower-mobile,
+  .mol-hex-1,
+  .mol-hex-2,
+  .knife-group-desktop,
+  .knife-group-mobile,
+  .food-interactive,
+  .circuit-bus-trace,
+  .glowing-via {
+    animation: none !important;
+    transform: none !important;
+  }
+  .circuit-bus-trace {
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+/* ============================================================ */
+/* Glassmorphism & Custom Gallery Utilities                     */
+/* ============================================================ */
+
+.glass-panel {
+  background: rgba(12, 14, 18, 0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.glass-nav {
+  background: rgba(9, 11, 15, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.gallery-border {
+  border: 1px solid var(--outline);
+}
+
+.gallery-border-active {
+  border-color: var(--copper);
+  box-shadow: 0 0 16px var(--copper-glow);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .gallery-border-hover:hover {
+    border-color: var(--copper);
+    box-shadow: 0 0 16px var(--copper-glow);
+  }
+}
+
+.copper-text {
+  color: var(--copper);
+}
+
+.copper-bg {
+  background-color: var(--copper);
+  color: #0F1115;
+}
+
+.champagne-text {
+  color: var(--champagne);
+}
+
+/* Nav Link Hover Underline */
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -4px;
+  left: 0;
+  background-color: var(--copper);
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Dot grid background texture */
+.dot-grid {
+  background-image: radial-gradient(rgba(226, 226, 232, 0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Pure CSS Native Details/Summary Toggle */
+details.custom-disclosure {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+details.custom-disclosure summary {
+  order: 2 !important;
+  align-self: flex-start !important;
+}
+
+details.custom-disclosure .details-content {
+  order: 1 !important;
+}
+
+details.custom-disclosure[open] summary {
+  margin-top: 1rem !important;
+}
+
+details.custom-disclosure summary .toggle-show-less {
+  display: none !important;
+}
+details.custom-disclosure summary .toggle-read-more {
+  display: inline-flex !important;
+}
+details.custom-disclosure[open] summary .toggle-show-less {
+  display: inline-flex !important;
+}
+details.custom-disclosure[open] summary .toggle-read-more {
+  display: none !important;
+}
+details.custom-disclosure summary .toggle-chevron {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+details.custom-disclosure[open] summary .toggle-chevron {
+  transform: rotate(180deg);
+  color: #FFAE64;
 }
