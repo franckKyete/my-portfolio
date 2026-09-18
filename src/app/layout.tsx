@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AnimatedBackground from "@/components/AnimatedBackground";
+import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -25,9 +26,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col bg-[#0B0D11] text-[#E2E2E8] relative">
         <AnimatedBackground />
-        <div className="relative z-10 flex flex-col min-h-screen">
-          {children}
-        </div>
+        <AuthProvider>
+          <div className="relative z-10 flex flex-col min-h-screen">
+            {children}
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

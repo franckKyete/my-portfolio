@@ -1,10 +1,15 @@
-import { portfolioContent } from "@/lib/content";
+import { AboutContent, defaultPortfolioContent } from "@/lib/content";
 import SectionLabel from "@/components/ui/SectionLabel";
 import GlassCard from "@/components/ui/GlassCard";
+import EditTrigger from "@/components/admin/EditTrigger";
 import { Cpu, Network, Layers, ShieldCheck } from "lucide-react";
 
-export default function About() {
-  const { about } = portfolioContent;
+interface AboutProps {
+  data?: AboutContent;
+}
+
+export default function About({ data = defaultPortfolioContent.about }: AboutProps) {
+  const about = data;
 
   return (
     <section id="about" className="py-24 px-4 sm:px-6 md:px-12 lg:px-16 max-w-[1440px] mx-auto border-b border-[#2D323C]/50">
@@ -19,8 +24,10 @@ export default function About() {
           aria-hidden="true"
         />
 
+        <EditTrigger section="about" title="About Section" data={about} />
+
         <div className="relative z-10">
-          <SectionLabel label={about.label} title="About" />
+          <SectionLabel label={about.label} title={about.title} />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             {/* Main narrative */}

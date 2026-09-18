@@ -1,10 +1,15 @@
-import { portfolioContent } from "@/lib/content";
+import { SkillCategory, defaultPortfolioContent } from "@/lib/content";
 import SectionLabel from "@/components/ui/SectionLabel";
 import GlassCard from "@/components/ui/GlassCard";
 import TechIcon from "@/components/ui/TechIcon";
+import EditTrigger from "@/components/admin/EditTrigger";
 
-export default function Skills() {
-  const { skills } = portfolioContent;
+interface SkillsProps {
+  categories?: SkillCategory[];
+}
+
+export default function Skills({ categories = defaultPortfolioContent.skills }: SkillsProps) {
+  const skills = categories;
 
   return (
     <section id="skills" className="py-24 px-4 sm:px-6 md:px-12 lg:px-16 max-w-[1440px] mx-auto border-b border-[#2D323C]/50">
@@ -14,6 +19,8 @@ export default function Skills() {
           className="absolute inset-0 pointer-events-none -z-10 hero-radial-vignette"
           aria-hidden="true"
         />
+
+        <EditTrigger section="skills" title="Skills & Capabilities" data={skills} />
 
         <div className="relative z-10">
           <SectionLabel label="05 / Capabilities" title="Skills & Technologies" />

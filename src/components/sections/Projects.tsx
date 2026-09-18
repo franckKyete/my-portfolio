@@ -1,7 +1,8 @@
-import { portfolioContent, Project } from "@/lib/content";
+import { defaultPortfolioContent, Project } from "@/lib/content";
 import SectionLabel from "@/components/ui/SectionLabel";
 import GlassCard from "@/components/ui/GlassCard";
 import TechChip from "@/components/ui/TechChip";
+import EditTrigger from "@/components/admin/EditTrigger";
 import { FolderGit2, Radio, Sparkles, ChevronDown } from "lucide-react";
 
 function ProjectCard({ project, idx }: { project: Project; idx: number }) {
@@ -95,11 +96,21 @@ function ProjectCard({ project, idx }: { project: Project; idx: number }) {
   );
 }
 
-export default function Projects() {
-  const { projects } = portfolioContent;
+interface ProjectsProps {
+  items?: Project[];
+}
+
+export default function Projects({ items = defaultPortfolioContent.projects }: ProjectsProps) {
+  const projects = items;
 
   return (
-    <section id="projects" className="py-24 px-6 md:px-16 max-w-[1440px] mx-auto border-b border-[#2D323C]/50">
+    <section id="projects" className="relative py-24 px-6 md:px-16 max-w-[1440px] mx-auto border-b border-[#2D323C]/50">
+      <EditTrigger
+        section="projects"
+        title="Featured Projects"
+        data={projects}
+        className="absolute top-20 right-6 md:right-16"
+      />
       <SectionLabel label="02 / Featured Projects" title="Featured Projects" />
 
       <div className="flex flex-col gap-12">

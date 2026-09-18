@@ -1,6 +1,7 @@
-import { portfolioContent, PassionItem } from "@/lib/content";
+import { PassionItem, defaultPortfolioContent } from "@/lib/content";
 import SectionLabel from "@/components/ui/SectionLabel";
 import GlassCard from "@/components/ui/GlassCard";
+import EditTrigger from "@/components/admin/EditTrigger";
 import { UtensilsCrossed, BookOpen, Film, Atom, Sparkles } from "lucide-react";
 
 const iconMap = {
@@ -10,11 +11,21 @@ const iconMap = {
   Atom: Atom,
 };
 
-export default function Passions() {
-  const { passions } = portfolioContent;
+interface PassionsProps {
+  items?: PassionItem[];
+}
+
+export default function Passions({ items = defaultPortfolioContent.passions }: PassionsProps) {
+  const passions = items;
 
   return (
-    <section id="passions" className="py-24 px-4 sm:px-6 md:px-12 lg:px-16 max-w-[1440px] mx-auto border-b border-[#2D323C]/50">
+    <section id="passions" className="relative py-24 px-4 sm:px-6 md:px-12 lg:px-16 max-w-[1440px] mx-auto border-b border-[#2D323C]/50">
+      <EditTrigger
+        section="passions"
+        title="Passions & Interests"
+        data={passions}
+        className="absolute top-20 right-6 md:right-16"
+      />
       <SectionLabel label="06 / Passions & Interests" title="Beyond the Terminal" />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

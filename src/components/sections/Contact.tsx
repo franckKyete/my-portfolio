@@ -1,11 +1,16 @@
-import { portfolioContent } from "@/lib/content";
+import { ContactContent, defaultPortfolioContent } from "@/lib/content";
 import SectionLabel from "@/components/ui/SectionLabel";
 import GlassCard from "@/components/ui/GlassCard";
+import EditTrigger from "@/components/admin/EditTrigger";
 import { Mail, FileText, ArrowUpRight } from "lucide-react";
 import { siGithub } from "simple-icons";
 
-export default function Contact() {
-  const { contact } = portfolioContent;
+interface ContactProps {
+  data?: ContactContent;
+}
+
+export default function Contact({ data = defaultPortfolioContent.contact }: ContactProps) {
+  const contact = data;
 
   const renderIcon = (iconName: string) => {
     switch (iconName) {
@@ -48,7 +53,13 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="py-24 px-6 md:px-16 max-w-[1440px] mx-auto">
+    <section id="contact" className="relative py-24 px-6 md:px-16 max-w-[1440px] mx-auto">
+      <EditTrigger
+        section="contact"
+        title="Contact Information"
+        data={contact}
+        className="absolute top-20 right-6 md:right-16"
+      />
       <SectionLabel label={contact.eyebrow} title="Get In Touch" />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">

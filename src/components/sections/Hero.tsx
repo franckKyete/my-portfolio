@@ -1,8 +1,81 @@
-import { portfolioContent } from "@/lib/content";
+import { HeroContent, ProfileContent, defaultPortfolioContent } from "@/lib/content";
 import { ArrowDownRight, Terminal } from "lucide-react";
+import EditTrigger from "@/components/admin/EditTrigger";
 
-export default function Hero() {
-  const { hero, profile } = portfolioContent;
+interface HeroProps {
+  data?: HeroContent;
+  profile?: ProfileContent;
+}
+
+function renderFormattedHeadline(text: string) {
+  if (!text) return null;
+
+  // 1. If explicit markdown italics *text* or _text_ are present:
+  if (/(\*[^*]+\*|_[^_]+_)/.test(text)) {
+    const parts = text.split(/(\*[^*]+\*|_[^_]+_)/g);
+    return parts.map((part, i) => {
+      if (
+        (part.startsWith("*") && part.endsWith("*")) ||
+        (part.startsWith("_") && part.endsWith("_"))
+      ) {
+        const inner = part.slice(1, -1);
+        return (
+          <span key={i} className="italic text-[#D8C3B4] font-normal">
+            {inner}
+          </span>
+        );
+      }
+      return part.split("\n").map((sub, j, arr) => (
+        <span key={`${i}-${j}`}>
+          {sub}
+          {j < arr.length - 1 && <br className="hidden sm:inline" />}
+        </span>
+      ));
+    });
+  }
+
+  // 2. If line breaks \n are explicitly present:
+  if (text.includes("\n")) {
+    const lines = text.split("\n");
+    return lines.map((line, idx) => (
+      <span key={idx}>
+        {line}
+        {idx < lines.length - 1 && <br className="hidden sm:inline" />}
+      </span>
+    ));
+  }
+
+  // 3. Natural phrase splitting (e.g. "I like solving problems that require going deeper.")
+  const requireMatch = text.match(/^(.*?\bthat require\s+)(.*)$/i);
+  if (requireMatch) {
+    return (
+      <>
+        {requireMatch[1]}
+        <br className="hidden sm:inline" />
+        <span className="italic text-[#D8C3B4] font-normal">{requireMatch[2]}</span>
+      </>
+    );
+  }
+
+  const problemMatch = text.match(/^(.*?\bproblems\s+)(.*)$/i);
+  if (problemMatch) {
+    return (
+      <>
+        {problemMatch[1]}
+        <br className="hidden sm:inline" />
+        <span className="italic text-[#D8C3B4] font-normal">{problemMatch[2]}</span>
+      </>
+    );
+  }
+
+  return text;
+}
+
+export default function Hero({
+  data = defaultPortfolioContent.hero,
+  profile = defaultPortfolioContent.profile,
+}: HeroProps) {
+  const hero = data;
 
   return (
     <section className="relative min-h-[90vh] flex flex-col justify-center py-20 px-4 sm:px-6 md:px-12 lg:px-16 max-w-[1440px] mx-auto border-b border-[#2D323C]/50">
@@ -17,6 +90,8 @@ export default function Hero() {
           aria-hidden="true"
         />
 
+        <EditTrigger section="hero" title="Hero & Profile" data={hero} profile={profile} />
+
         <div className="max-w-3xl relative z-10">
           {/* Eyebrow badge with Full Name */}
           <div className="inline-flex items-center gap-2 mb-8 px-3.5 py-1.5 border border-[#2D323C] bg-[#1A1C20]/80 backdrop-blur-md">
@@ -28,8 +103,7 @@ export default function Hero() {
 
           {/* Display Headline */}
           <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-[76px] font-serif text-[#E2E2E8] leading-[1.08] tracking-tight mb-8 drop-shadow-md">
-            I like solving problems <br className="hidden sm:inline" />
-            that require <span className="italic text-[#D8C3B4] font-normal">going deeper.</span>
+            {renderFormattedHeadline(hero.headline)}
           </h1>
 
           {/* Body Paragraph */}

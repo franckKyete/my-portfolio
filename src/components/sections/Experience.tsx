@@ -1,7 +1,8 @@
-import { portfolioContent, Experience as ExperienceType } from "@/lib/content";
+import { defaultPortfolioContent, Experience as ExperienceType } from "@/lib/content";
 import SectionLabel from "@/components/ui/SectionLabel";
 import GlassCard from "@/components/ui/GlassCard";
 import TechChip from "@/components/ui/TechChip";
+import EditTrigger from "@/components/admin/EditTrigger";
 import { Briefcase, ExternalLink, ChevronDown } from "lucide-react";
 
 function ExperienceCard({ exp }: { exp: ExperienceType }) {
@@ -78,11 +79,21 @@ function ExperienceCard({ exp }: { exp: ExperienceType }) {
   );
 }
 
-export default function Experience() {
-  const { experience } = portfolioContent;
+interface ExperienceProps {
+  items?: ExperienceType[];
+}
+
+export default function Experience({ items = defaultPortfolioContent.experience }: ExperienceProps) {
+  const experience = items;
 
   return (
-    <section id="experience" className="py-24 px-6 md:px-16 max-w-[1440px] mx-auto border-b border-[#2D323C]/50">
+    <section id="experience" className="relative py-24 px-6 md:px-16 max-w-[1440px] mx-auto border-b border-[#2D323C]/50">
+      <EditTrigger
+        section="experience"
+        title="Experience Trajectory"
+        data={experience}
+        className="absolute top-20 right-6 md:right-16"
+      />
       <SectionLabel label="03 / Experience" title="Experience" />
 
       <div className="space-y-8">

@@ -1,10 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { portfolioContent } from "@/lib/content";
+import { ProfileContent, defaultPortfolioContent } from "@/lib/content";
 import { Menu, X } from "lucide-react";
 
-export default function Navbar() {
+interface NavbarProps {
+  profile?: ProfileContent;
+}
+
+export default function Navbar({ profile = defaultPortfolioContent.profile }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
@@ -24,7 +28,7 @@ export default function Navbar() {
           href="#"
           className="text-2xl md:text-3xl font-serif tracking-[0.2em] text-[#E2E2E8] hover:text-[#B87333] transition-colors"
         >
-          {portfolioContent.profile.name}
+          {profile.name}
         </a>
 
         {/* Desktop Nav */}

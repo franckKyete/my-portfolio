@@ -1,12 +1,23 @@
-import { portfolioContent } from "@/lib/content";
+import { WorkPrinciple, defaultPortfolioContent } from "@/lib/content";
 import SectionLabel from "@/components/ui/SectionLabel";
 import GlassCard from "@/components/ui/GlassCard";
+import EditTrigger from "@/components/admin/EditTrigger";
 
-export default function HowIWork() {
-  const { howIWork } = portfolioContent;
+interface HowIWorkProps {
+  items?: WorkPrinciple[];
+}
+
+export default function HowIWork({ items = defaultPortfolioContent.howIWork }: HowIWorkProps) {
+  const howIWork = items;
 
   return (
-    <section id="how-i-work" className="py-24 px-6 md:px-16 max-w-[1440px] mx-auto border-b border-[#2D323C]/50">
+    <section id="how-i-work" className="relative py-24 px-6 md:px-16 max-w-[1440px] mx-auto border-b border-[#2D323C]/50">
+      <EditTrigger
+        section="howIWork"
+        title="Methodology / How I Work"
+        data={howIWork}
+        className="absolute top-20 right-6 md:right-16"
+      />
       <SectionLabel label="04 / Methodology" title="How I Work" />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
