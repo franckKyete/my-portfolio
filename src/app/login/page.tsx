@@ -88,12 +88,12 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {!isConfigured && (
+          {!isConfigured && !authLoading && (
             <div className="mb-6 p-4 rounded-xl bg-[#1C1514] border border-amber-900/40 text-amber-300 text-xs flex items-start gap-3">
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
               <div>
                 <strong className="block font-medium mb-1">Configuration Needed</strong>
-                Client Firebase is missing <code className="bg-black/40 px-1 py-0.5 rounded">NEXT_PUBLIC_FIREBASE_API_KEY</code>. Add it to your <code className="bg-black/40 px-1 py-0.5 rounded">.env.local</code> file to enable sign in.
+                Client Firebase is missing <code className="bg-black/40 px-1 py-0.5 rounded">FIREBASE_API_KEY</code> / <code className="bg-black/40 px-1 py-0.5 rounded">NEXT_PUBLIC_FIREBASE_API_KEY</code>. Please add it to your Cloudflare Workers environment variables or <code className="bg-black/40 px-1 py-0.5 rounded">.env.local</code>.
               </div>
             </div>
           )}
@@ -143,13 +143,13 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading || !isConfigured}
+              disabled={loading || !isConfigured || authLoading}
               className="w-full mt-2 py-3.5 px-6 rounded-xl bg-[#B87333] hover:bg-[#c9803d] disabled:opacity-50 disabled:cursor-not-allowed text-[#0B0D11] text-xs font-mono uppercase tracking-[0.18em] font-semibold transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#B87333]/20 hover:shadow-[#B87333]/30"
             >
-              {loading ? (
+              {loading || authLoading ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  <span>Authenticating...</span>
+                  <span>{authLoading ? "Initializing..." : "Authenticating..."}</span>
                 </>
               ) : (
                 <span>Sign In to Editor</span>

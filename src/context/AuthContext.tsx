@@ -7,7 +7,7 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged,
 } from "firebase/auth";
-import { getClientAuth } from "@/lib/firebase/client";
+import { getClientAuth, initClientAuth } from "@/lib/firebase/client";
 
 interface AuthContextType {
   user: User | null;
@@ -28,7 +28,7 @@ const AuthContext = createContext<AuthContextType>({
   signIn: async () => {},
   signOut: async () => {},
   getIdToken: async () => null,
-  isConfigured: false,
+  isConfigured: true,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -38,35 +38,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isConfigured, setIsConfigured] = useState(true);
 
   useEffect(() => {
-    const auth = getClientAuth();
-    if (!auth) {
-      setIsConfigured(false);
-      setLoading(false);
-      return;
+    let unsubscribe: (() => void) | undefined;
+    let isMounted = true;
+
+    async function initialize() {
+      // 1. Check synchronous auth
+      let authInstance = getClientAuth();
+
+      // 2. If not ready, await runtime fetch (/api/firebase-config)
+      if (!authInstance) {
+        authInstance = await initClientAuth();
+      }
+
+      if (!isMounted) return;
+
+      if (!authInstance) {
+        setIsConfigured(false);
+        setLoading(false);
+        return;
+      }
+
+      setIsConfigured(true);
+      unsubscribe = onAuthStateChanged(authInstance, (currentUser) => {
+        if (!isMounted) return;
+        setUser(currentUser);
+        setLoading(false);
+      });
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
+    initialize();
 
-    return () => unsubscribe();
+    return () => {
+      isMounted = false;
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, pass: string) => {
-    const auth = getClientAuth();
-    if (!auth) {
+    let authInstance = getClientAuth();
+    if (!authInstance) {
+      authInstance = await initClientAuth();
+    }
+    if (!authInstance) {
       throw new Error(
-        "Client Firebase Auth is not configured. Please add NEXT_PUBLIC_FIREBASE_API_KEY and NEXT_PUBLIC_FIREBASE_PROJECT_ID to your .env.local file."
+        "Client Firebase Auth is not configured. Please ensure Firebase environment variables are set in Cloudflare or .env.local."
       );
     }
-    await signInWithEmailAndPassword(auth, email, pass);
+    await signInWithEmailAndPassword(authInstance, email, pass);
   };
 
   const signOut = async () => {
-    const auth = getClientAuth();
-    if (auth) {
-      await firebaseSignOut(auth);
+    let authInstance = getClientAuth();
+    if (!authInstance) {
+      authInstance = await initClientAuth();
+    }
+    if (authInstance) {
+      await firebaseSignOut(authInstance);
       setUser(null);
     }
   };
