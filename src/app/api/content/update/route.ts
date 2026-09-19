@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { getAdminAuth, getFirestoreDb } from "@/lib/firebase/admin";
+import { updateEdgePortfolioDocument } from "@/lib/firebase/edgeFirestore";
 
 const VALID_SECTIONS = [
   "profile",
@@ -25,31 +25,6 @@ export async function POST(request: NextRequest) {
     }
 
     const idToken = authHeader.split("Bearer ")[1];
-    const adminAuth = getAdminAuth();
-
-    if (!adminAuth) {
-      return NextResponse.json(
-        { error: "Server error: Firebase Admin Auth is not configured" },
-        { status: 500 }
-      );
-    }
-
-    // Verify token
-    let decodedToken;
-    try {
-      decodedToken = await adminAuth.verifyIdToken(idToken);
-    } catch (authError: any) {
-      console.warn("Token verification failed:", authError?.message || authError);
-      return NextResponse.json(
-        {
-          error: "Unauthorized: Invalid or expired ID token",
-          code: authError?.code || "auth/invalid-token",
-          details: authError?.message || "Token verification failed",
-        },
-        { status: 401 }
-      );
-    }
-
     const body = await request.json();
     const { section, data } = body;
 
@@ -67,41 +42,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const db = getFirestoreDb();
-    if (!db) {
+    // Update document using edge-compatible Firestore REST API with the user's ID token
+    const result = await updateEdgePortfolioDocument(section, data, idToken);
+
+    if (!result.success) {
+      const isAuthError =
+        result.error?.toLowerCase().includes("unauthenticated") ||
+        result.error?.toLowerCase().includes("permission");
+
       return NextResponse.json(
-        { error: "Server error: Firestore is not configured" },
-        { status: 500 }
+        { error: result.error || "Failed to update content" },
+        { status: isAuthError ? 401 : 500 }
       );
     }
 
-    // A Firestore document must be a plain JavaScript object.
-    // If the section payload is an array (e.g. projects, experience, howIWork, skills, passions),
-    // wrap it into the matching document structure.
-    let docData: Record<string, any>;
-    if (Array.isArray(data)) {
-      if (section === "skills") {
-        docData = { categories: data };
-      } else {
-        docData = { items: data };
-      }
-    } else {
-      docData = { ...data };
-    }
-
-    // Strip undefined values which cause Firestore serialization errors
-    docData = JSON.parse(JSON.stringify(docData));
-
-    // Write to Firestore
-    await db.collection("portfolio").doc(section).set(docData, { merge: true });
-
-    // Trigger on-demand revalidation of the homepage
+    // Trigger on-demand cache revalidation
     revalidatePath("/");
 
     return NextResponse.json({
       success: true,
       section,
-      updatedBy: decodedToken.email || decodedToken.uid,
       timestamp: Date.now(),
     });
   } catch (error) {
