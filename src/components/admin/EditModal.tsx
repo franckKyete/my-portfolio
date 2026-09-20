@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
-import { X, Save, Loader2 } from "lucide-react";
+import { X, Save, Loader2, AlertCircle } from "lucide-react";
 
 interface EditModalProps {
   isOpen: boolean;
@@ -10,6 +10,7 @@ interface EditModalProps {
   onSave: () => Promise<void>;
   title: string;
   saving?: boolean;
+  error?: string | null;
   children: React.ReactNode;
 }
 
@@ -19,13 +20,21 @@ export default function EditModal({
   onSave,
   title,
   saving = false,
+  error = null,
   children,
 }: EditModalProps) {
   const [mounted, setMounted] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (error && scrollRef.current) {
+      scrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [error]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -78,39 +87,66 @@ export default function EditModal({
           </button>
         </div>
 
+        {/* Sticky Error Banner below Header */}
+        {error && (
+          <div className="px-6 py-3 bg-red-950/90 border-b border-red-900/60 text-red-200 text-xs flex items-start gap-2.5 animate-in fade-in duration-200">
+            <AlertCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
+            <div className="leading-relaxed">
+              <strong className="font-semibold block text-red-300">Save Failed</strong>
+              <span>{error}</span>
+            </div>
+          </div>
+        )}
+
         {/* Modal Scrollable Body */}
-        <div className="px-6 py-6 overflow-y-auto space-y-6 flex-1 text-[#E2E2E8]">
+        <div ref={scrollRef} className="px-6 py-6 overflow-y-auto space-y-6 flex-1 text-[#E2E2E8]">
           {children}
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[#2D323C] bg-[#14171E]">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={saving}
-            className="px-4 py-2 text-xs font-mono uppercase tracking-wider text-[#A08D80] hover:text-[#E2E2E8] transition-colors disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={onSave}
-            disabled={saving}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#B87333] hover:bg-[#c9803d] text-[#0B0D11] text-xs font-mono font-semibold uppercase tracking-wider transition-all disabled:opacity-50 shadow-md shadow-[#B87333]/20"
-          >
-            {saving ? (
-              <>
-                <Loader2 size={14} className="animate-spin" />
-                <span>Saving...</span>
-              </>
-            ) : (
-              <>
-                <Save size={14} />
-                <span>Save Changes</span>
-              </>
-            )}
-          </button>
+        <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-[#2D323C] bg-[#14171E]">
+          {error ? (
+            <div
+              className="flex items-center gap-1.5 text-xs font-mono text-red-400 max-w-[260px] sm:max-w-sm truncate"
+              title={error}
+            >
+              <AlertCircle size={14} className="shrink-0 text-red-400" />
+              <span className="truncate">{error}</span>
+            </div>
+          ) : (
+            <span className="text-[11px] font-mono text-[#6E6E78]">
+              All changes sync to Cloud Firestore
+            </span>
+          )}
+
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+              className="px-4 py-2 text-xs font-mono uppercase tracking-wider text-[#A08D80] hover:text-[#E2E2E8] transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onSave}
+              disabled={saving}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#B87333] hover:bg-[#c9803d] text-[#0B0D11] text-xs font-mono font-semibold uppercase tracking-wider transition-all disabled:opacity-50 shadow-md shadow-[#B87333]/20"
+            >
+              {saving ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <Save size={14} />
+                  <span>Save Changes</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>,

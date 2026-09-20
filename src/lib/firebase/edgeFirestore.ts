@@ -112,8 +112,7 @@ export async function getEdgePortfolioContent(): Promise<PortfolioContent> {
   try {
     const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/portfolio`;
     const res = await fetch(url, {
-      // Revalidate every 60s or immediately on demand
-      next: { revalidate: 60, tags: ["portfolio"] },
+      cache: "no-store",
       headers: {
         Accept: "application/json",
       },
@@ -187,10 +186,10 @@ export async function updateEdgePortfolioDocument(
   section: string,
   data: any,
   idToken: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; status?: number }> {
   const projectId = getProjectId();
   if (!projectId) {
-    return { success: false, error: "Missing Firebase Project ID configuration" };
+    return { success: false, error: "Missing Firebase Project ID configuration", status: 500 };
   }
 
   let docData: Record<string, any>;
@@ -219,8 +218,8 @@ export async function updateEdgePortfolioDocument(
   if (!res.ok) {
     const errData = await res.json().catch(() => ({}));
     const message = errData?.error?.message || `Firestore update failed with status ${res.status}`;
-    return { success: false, error: message };
+    return { success: false, error: message, status: res.status };
   }
 
-  return { success: true };
+  return { success: true, status: 200 };
 }

@@ -46,13 +46,42 @@ export async function POST(request: NextRequest) {
     const result = await updateEdgePortfolioDocument(section, data, idToken);
 
     if (!result.success) {
-      const isAuthError =
-        result.error?.toLowerCase().includes("unauthenticated") ||
+      const isPermissionDenied =
+        result.status === 403 ||
         result.error?.toLowerCase().includes("permission");
 
+      const isUnauthenticated =
+        result.status === 401 ||
+        result.error?.toLowerCase().includes("unauthenticated") ||
+        result.error?.toLowerCase().includes("invalid authentication credentials");
+
+      if (isPermissionDenied) {
+        return NextResponse.json(
+          {
+            error: "Firestore write permission denied",
+            details:
+              "Cloud Firestore rejected the update. Please ensure your Firebase Console has Firestore rules allowing authenticated writes (allow write: if request.auth != null;).",
+          },
+          { status: 403 }
+        );
+      }
+
+      if (isUnauthenticated) {
+        return NextResponse.json(
+          {
+            error: "Authentication expired or invalid",
+            details: "Your login session has expired. Please sign out and sign in again.",
+          },
+          { status: 401 }
+        );
+      }
+
       return NextResponse.json(
-        { error: result.error || "Failed to update content" },
-        { status: isAuthError ? 401 : 500 }
+        {
+          error: "Failed to update Firestore document",
+          details: result.error || "Unknown server error updating content",
+        },
+        { status: result.status || 500 }
       );
     }
 

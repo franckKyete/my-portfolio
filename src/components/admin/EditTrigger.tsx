@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { Pencil, Check, AlertCircle } from "lucide-react";
+import { Pencil } from "lucide-react";
 import EditModal from "./EditModal";
 
 import HeroEditor from "./editors/HeroEditor";
@@ -73,15 +73,15 @@ export default function EditTrigger({
 
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
-        if (res.status === 401) {
-          throw new Error("Your login session has expired. Please sign out and sign in again.");
-        }
-        throw new Error(errJson.error || errJson.details || "Failed to update content");
+        const message = errJson.details
+          ? `${errJson.error} — ${errJson.details}`
+          : errJson.error || `Update failed with status ${res.status}`;
+        throw new Error(message);
       }
 
       // 2. If hero editor modified profile, update profile document as well
       if (section === "hero" && draftProfile) {
-        await fetch("/api/content/update", {
+        const profileRes = await fetch("/api/content/update", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -92,6 +92,14 @@ export default function EditTrigger({
             data: draftProfile,
           }),
         });
+
+        if (!profileRes.ok) {
+          const profileErr = await profileRes.json().catch(() => ({}));
+          const message = profileErr.details
+            ? `${profileErr.error} — ${profileErr.details}`
+            : profileErr.error || `Profile update failed with status ${profileRes.status}`;
+          throw new Error(message);
+        }
       }
 
       // Refresh server-rendered components
@@ -190,13 +198,8 @@ export default function EditTrigger({
         onSave={handleSave}
         title={title}
         saving={saving}
+        error={error}
       >
-        {error && (
-          <div className="p-3.5 rounded-xl bg-red-950/50 border border-red-900/60 text-red-300 text-xs flex items-center gap-2 mb-4">
-            <AlertCircle size={15} className="shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
         {renderEditor()}
       </EditModal>
     </>
